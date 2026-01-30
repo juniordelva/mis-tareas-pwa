@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mis Tareas</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Manifest (PWA) -->
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      background: white;
+      padding: 10px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 6px;
+    }
+
+    .completada {
+      text-decoration: line-through;
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📝 Mis tareas</h1>
+
+  <input id="tareaInput" placeholder="Escribe una tarea...">
+  <button onclick="agregarTarea()">Añadir tarea</button>
+
+  <ul id="listaTareas"></ul>
+
+  <script>
+    // Cargamos tareas guardadas
+    let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
+
+    function guardarTareas() {
+      localStorage.setItem("tareas", JSON.stringify(tareas));
+    }
+
+    function renderizar() {
+      const lista = document.getElementById("listaTareas");
+      lista.innerHTML = "";
+
+      tareas.forEach((tarea, index) => {
+        const li = document.createElement("li");
+
+        const texto = document.createElement("span");
+        texto.textContent = tarea.texto;
+        texto.className = tarea.completada ? "completada" : "";
+        texto.onclick = () => toggleTarea(index);
+
+        const borrarBtn = document.createElement("button");
+        borrarBtn.textContent = "❌";
+        borrarBtn.onclick = () => borrarTarea(index);
+
+        li.appendChild(texto);
+        li.appendChild(borrarBtn);
+        lista.appendChild(li);
+      });
+
+      guardarTareas();
+    }
+
+    function agregarTarea() {
+      const input = document.getElementById("tareaInput");
+      if (input.value.trim() === "") return;
+
+      tareas.push({
+        texto: input.value,
+        completada: false
+      });
+
+      input.value = "";
+      renderizar();
+    }
+
+    function toggleTarea(index) {
+      tareas[index].completada = !tareas[index].completada;
+      renderizar();
+    }
+
+    function borrarTarea(index) {
+      tareas.splice(index, 1);
+      renderizar();
+    }
+
+    renderizar();
+  </script>
+  <script>
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("service-worker.js");
+    }
+  </script>
+      
+</body>
+</html>
